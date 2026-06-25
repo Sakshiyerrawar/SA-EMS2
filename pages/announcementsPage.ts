@@ -7,27 +7,33 @@ export class AnnouncementsPage {
     readonly titleInput: Locator;
     readonly messageInput: Locator;
     readonly priorityDropdown: Locator;
+    readonly audienceDropdown: Locator;
     readonly postAnnouncementButton: Locator;
-    readonly successMessage: Locator;
+
+    readonly logoutButton: Locator;
 
     constructor(page: Page) {
+
+
+        this.logoutButton =
+    page.locator('button.sidebar-logout-btn');
 
         this.page = page;
 
         this.titleInput =
-            page.locator('input').first();
+            page.locator('input[name="title"]');
 
         this.messageInput =
-            page.locator('textarea');
+            page.locator('textarea[name="message"]');
 
         this.priorityDropdown =
-            page.locator('select').first();
+            page.locator('select[name="priority"]');
+
+        this.audienceDropdown =
+            page.locator('select[name="audience"]');
 
         this.postAnnouncementButton =
             page.locator('button[type="submit"]');
-
-        this.successMessage =
-            page.locator('.form-success');
     }
 
     async createAnnouncement(
@@ -35,37 +41,53 @@ export class AnnouncementsPage {
         message: string
     ) {
 
-        console.log('Before Title');
-
         await this.titleInput.fill(title);
-
-        console.log('Title Filled');
 
         await this.messageInput.fill(message);
 
-        console.log('Message Filled');
-
+        // Priority = High
         await this.priorityDropdown.selectOption({
             value: 'high'
         });
 
-        console.log('Priority Selected');
+        // Send To = Team Leads
+        await this.audienceDropdown.selectOption({
+            value: 'leads'
+        });
 
         await this.postAnnouncementButton.click();
 
-        console.log('Button Clicked');
+        await this.page.waitForTimeout(3000);
     }
 
-    async verifyAnnouncementCreated() {
+    async verifyAnnouncementCreated(title: string) {
 
         await expect(
-            this.successMessage
-        ).toContainText(
-            'Announcement posted!'
-        );
+            this.page.getByText(title)
+        ).toBeVisible({
+            timeout: 10000
+        });
 
-        console.log(
-            'Announcement Created Successfully'
-        );
+        console.log('Announcement Created Successfully');
+
+        
     }
+    async logout() {
+
+    console.log('Logout Started');
+
+    await this.logoutButton.click();
+
+    await this.page.waitForURL(
+        /login/,
+        {
+            timeout: 10000
+        }
+    );
+
+    console.log(
+        'Logged Out Successfully'
+    );
+}
+    
 }
