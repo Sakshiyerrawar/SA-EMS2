@@ -1,139 +1,74 @@
-import { test } from '@playwright/test';
+﻿import { test } from '@playwright/test';
+import { LoginPage } from '../pages/loginPage';
 import { MeetingsPage } from '../pages/meetingsPage';
+import { users } from '../utils/users';
+import { meetingData } from '../utils/meetingData';
 
 test('Create Meeting', async ({ page }) => {
 
-    test.setTimeout(60000);
+    test.setTimeout(120000);
 
-    await page.goto(
-        'https://chocolate-dove-141370.hostingersite.com/login'
+    console.log("========== TEST START ==========");
+
+    const login = new LoginPage(page);
+    const meetings = new MeetingsPage(page);
+
+    console.log("Opening Login Page...");
+    await login.navigate();
+
+    console.log("Logging In...");
+    await login.login(
+        users.admin.email,
+        users.admin.password
     );
 
-    await page.locator(
-        'input[type="email"]'
-    ).fill(
-        'praneethgundu03@gmail.com'
-    );
-
-    await page.locator(
-        'input[type="password"]'
-    ).fill(
-        'Praneeth123'
-    );
-
-    await page.getByRole(
-        'button',
-        { name: 'Sign In' }
-    ).click();
-
-    await page.waitForURL(
-        /dashboard/
-    );
-
-    console.log(
-        'Dashboard URL:',
-        page.url()
-    );
-
-    await page.goto(
-        'https://chocolate-dove-141370.hostingersite.com/admin/meetings'
-    );
-
-    await page.waitForTimeout(
-        5000
-    );
-
-    console.log(
-        'Meetings URL:',
-        page.url()
-    );
-
-    const meetings =
-        new MeetingsPage(page);
-
-    await meetings.createMeeting(
-        `Meeting_${Date.now()}`
-    );
-
-    await page.waitForTimeout(
-        3000
-    );
-
-    await meetings.logout();
-
-    await page.screenshot({
-        path: 'meeting-created.png',
-        fullPage: true
+    console.log("Waiting for Dashboard...");
+    await page.waitForURL(/dashboard/, {
+        timeout: 30000
     });
-});
 
+    console.log("Dashboard URL:", await page.url());
 
-
-
-
-
-
-
-
-
-
-
-
-
-/*import { test } from '@playwright/test';
-import { MeetingsPage } from '../pages/meetingsPage';
-
-test('Create Meeting', async ({ page }) => {
+    console.log("Opening Meetings Page...");
 
     await page.goto(
-        'https://chocolate-dove-141370.hostingersite.com/login'
+        "https://chocolate-dove-141370.hostingersite.com/admin/meetings",
+        {
+            waitUntil: "domcontentloaded"
+        }
     );
 
-    await page.locator('input[type="email"]')
-        .fill('praneethgundu03@gmail.com');
+    await page.waitForLoadState("networkidle");
 
-    await page.locator('input[type="password"]')
-        .fill('Praneeth123');
+    console.log("Meetings URL:", await page.url());
 
-    await page.getByRole('button', {
-        name: 'Sign In'
-    }).click();
-
-    await page.waitForURL(/dashboard/);
-
-    console.log(
-        'Dashboard URL:',
-        await page.url()
+    await page.waitForSelector(
+        'input[name="title"]',
+        {
+            timeout: 30000
+        }
     );
 
-    await page.goto(
-        'https://chocolate-dove-141370.hostingersite.com/admin/meetings'
-    );
+    console.log("Meetings Page Loaded");
 
-    await page.waitForTimeout(3000);
+    console.log("Meeting Data");
 
-    console.log(
-        'Meetings URL:',
-        await page.url()
-    );
-
-    const meetings =
-        new MeetingsPage(page);
-
-    const uniqueTitle =
-        `Meeting_${Date.now()}`;
+    console.log(meetingData);
 
     await meetings.createMeeting(
-        uniqueTitle
+        meetingData.title
     );
+
+    console.log("Verifying Meeting...");
 
     await meetings.verifyMeetingCreated();
 
     await page.screenshot({
-        path: 'meeting-created.png',
+        path: "meeting-created.png",
         fullPage: true
     });
 
-    
+    console.log("Screenshot Taken");
+
+    console.log("========== TEST END ==========");
 });
-*/

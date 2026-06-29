@@ -1,4 +1,74 @@
 import { test } from '@playwright/test';
+import { LoginPage } from '../pages/loginPage';
+import { AnnouncementsPage } from '../pages/announcementsPage';
+import { users } from '../utils/users';
+
+import fs from 'fs';
+
+test('Create Announcement', async ({ page }) => {
+
+    const login = new LoginPage(page);
+
+    await login.navigate();
+
+    await login.login(
+        users.admin.email,
+        users.admin.password
+    );
+
+    await page.waitForURL(/dashboard/);
+
+    await page.goto(
+        'https://chocolate-dove-141370.hostingersite.com/admin/announcements'
+    );
+
+    const announcements =
+        new AnnouncementsPage(page);
+
+    const uniqueTitle =
+        `Announcement_${Date.now()}`;
+
+    await announcements.createAnnouncement(
+        uniqueTitle,
+        'Automation Testing Announcement'
+    );
+
+    await announcements.verifyAnnouncementCreated(
+        uniqueTitle
+    );
+
+    fs.writeFileSync(
+        './utils/announcementData.json',
+        JSON.stringify(
+            {
+                title: uniqueTitle
+            },
+            null,
+            2
+        )
+    );
+
+    console.log(
+        'Announcement title saved successfully'
+    );
+
+    await announcements.logout();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+import { test } from '@playwright/test';
 import { AnnouncementsPage } from '../pages/announcementsPage';
 
 import fs from 'fs';
@@ -65,3 +135,5 @@ test('Create Announcement', async ({ page }) => {
         fullPage: true
     });
 });
+
+*/

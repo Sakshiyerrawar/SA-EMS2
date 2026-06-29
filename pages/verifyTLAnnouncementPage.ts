@@ -1,3 +1,50 @@
+import { Page, Locator, expect } from '@playwright/test';
+
+export class VerifyTLAnnouncementPage {
+
+    readonly page: Page;
+    readonly logoutButton: Locator;
+
+    constructor(page: Page) {
+        this.page = page;
+
+        this.logoutButton =
+            page.locator('button.sidebar-logout-btn');
+    }
+
+    async verifyTLAnnouncementVisible(announcementTitle: string) {
+
+        await this.page.goto(
+            'https://chocolate-dove-141370.hostingersite.com/lead/announcements'
+        );
+
+        await this.page.waitForLoadState('domcontentloaded');
+
+        await expect(
+            this.page.getByText(announcementTitle)
+        ).toBeVisible({
+            timeout: 15000
+        });
+    }
+
+    async logout() {
+
+        await this.logoutButton.click();
+
+        await this.page.waitForURL(/login/);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/*
 import {
     Page,
     Locator,
@@ -106,7 +153,7 @@ await expect(
         console.log('Logout Successful');
     }
 }
-
+*/
 
 
 
