@@ -17,12 +17,11 @@ export class AdminLeaveApprovalPage {
     }
 
     async openPage() {
+await this.page.goto(
+  "https://chocolate-dove-141370.hostingersite.com/admin/leave"
+);
 
-        await this.page.goto(
-            "https://chocolate-dove-141370.hostingersite.com/admin/leave"
-        );
-
-        await this.page.waitForLoadState("networkidle");
+await this.page.waitForSelector("table");
     }
 
     async approveLatestLeave() {
